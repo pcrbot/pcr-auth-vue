@@ -1,29 +1,32 @@
 <template>
   <div class="q-ma-xl">
-    <q-markup-table flat bordered>
-      <thead class="bg-teal-5">
-      <tr>
-        <th colspan="5">
-          <div class="row no-wrap items-center">
-            <div class="text-h4 q-ml-md text-white">注册码列表</div>
-          </div>
-        </th>
-      </tr>
-      <tr>
-        <th class="text-left">编号</th>
-        <th class="text-left">注册码</th>
-        <th class="text-right">授权时长</th>
-      </tr>
-      </thead>
-      <tbody class="bg-grey-3" v-for="(item,i) in keyList" :key="i">
-      <tr>
-        <td class="text-left">{{ i }}</td>
-        <td class="text-left">{{ item.key }}</td>
-        <td class="text-right">{{ item.length }}</td>
-      </tr>
-      </tbody>
-    </q-markup-table>
+    <span style="font-size: 28px">注册码列表</span>
     <q-btn label="添加" color="primary" v-on:click="add()"></q-btn>
+    <div class="q-pa-md">
+      <div class="row justify-center q-gutter-sm" style="width: auto">
+        <q-intersection
+          v-for="(item,index) in keyList"
+          :key="index"
+          once
+          transition="scale"
+          class="example-item"
+        >
+          <q-card class="bg-primary text-white" style="width: 180px">
+            <br>
+            <div class="text-bold text-center">
+              {{ item.key }}
+              <br>
+              授权时长:{{ item.length }}天
+            </div>
+            <br>
+            <q-card-section class="justify-center bg-teal-14" style="vertical-align: middle;">
+              <q-btn label="Info" v-on:click="alert(index)"></q-btn>
+              <q-btn label="Delete" v-on:click="confirm(index)"></q-btn>
+            </q-card-section>
+          </q-card>
+        </q-intersection>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -67,6 +70,39 @@ export default {
           .catch((err) => {
             console.log(err)
           })
+      })
+    },
+    alert (index) {
+      this.$q.dialog({
+        title: 'INFO',
+        message: '您的注册码:' + this.keyList[index].key + '  授权时长:' + this.keyList[index].length + '天'
+      }).onOk(() => {
+        // console.log('OK')
+      }).onCancel(() => {
+        // console.log('Cancel')
+      }).onDismiss(() => {
+        // console.log('I am triggered on both OK and Cancel')
+      })
+    },
+    confirm (index) {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: '此操作将永久删除该注册码, 是否继续?',
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        // console.log('>>>> OK')
+      }).onOk(() => {
+        this.$axios.delete('delkey?key=' + this.keyList[index].key)
+          .then((response) => {
+            if (response.data === 'success') {
+              this.updateKey()
+            }
+          })
+      }).onCancel(() => {
+        // console.log('>>>> Cancel')
+      }).onDismiss(() => {
+        // console.log('I am triggered on both OK and Cancel')
       })
     }
   },

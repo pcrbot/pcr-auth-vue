@@ -5,17 +5,19 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/Index.vue') },
-      { path: 'regkey', component: () => import('pages/Regkey.vue') },
-      { path: 'group', component: () => import('pages/Group.vue') },
-      { path: 'login', component: () => import('pages/Login.vue') }
+      { path: 'login', component: () => import('pages/Login.vue') },
+      { path: 'regkey', component: () => import('pages/Regkey.vue'), meta: { requireAuth: true } },
+      { path: 'group', component: () => import('pages/Group.vue'), meta: { requireAuth: true } }
     ]
-  },
-  // Always leave this as last one,
-  // but you can also remove it
-  {
-    path: '*',
-    component: () => import('pages/Error404.vue')
   }
 ]
+
+// Always leave this as last one
+if (process.env.MODE !== 'ssr') {
+  routes.push({
+    path: '*',
+    component: () => import('pages/Error404.vue')
+  })
+}
 
 export default routes

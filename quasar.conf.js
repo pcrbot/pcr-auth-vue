@@ -80,7 +80,7 @@ module.exports = function (/* ctx */) {
       host: '0.0.0.0',
       open: true, // opens browser window automatically
       proxy: {
-        '/authapi': {
+        '/auth': {
           target: 'http://127.0.0.1:8080',
           changeOrigin: true
         }
