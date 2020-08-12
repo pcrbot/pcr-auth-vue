@@ -7,6 +7,7 @@ const routes = [
       { path: '', component: () => import('pages/Index.vue') },
       { path: 'login', component: () => import('pages/Login.vue') },
       { path: 'regkey', component: () => import('pages/Regkey.vue'), meta: { requireAuth: true } },
+      { path: 'activate', component: () => import('pages/Activation.vue') },
       { path: 'group', component: () => import('pages/Group.vue'), meta: { requireAuth: true } }
     ]
   }

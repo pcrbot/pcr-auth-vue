@@ -53,6 +53,10 @@ const linksData = [
     link: '/'
   },
   {
+    title: '激活',
+    link: '/activate'
+  },
+  {
     title: '授权码',
     link: '/regkey'
   },
