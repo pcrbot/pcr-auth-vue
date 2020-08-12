@@ -32,6 +32,8 @@
 
 <script>
 
+import { LocalStorage } from 'quasar'
+
 export default {
   name: 'Regkey',
   data () {
@@ -44,7 +46,7 @@ export default {
   },
   methods: {
     updateKey () {
-      this.$axios.get('/get/key')
+      this.$axios.get('/get/key?password=' + LocalStorage.getItem('password'))
         .then((response) => {
           this.keyList = response.data
         })

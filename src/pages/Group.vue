@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { LocalStorage } from 'quasar'
+
 export default {
   name: 'Group',
   data () {
@@ -39,7 +41,7 @@ export default {
   },
   methods: {
     updateGroup () {
-      this.$axios.get('/get/group')
+      this.$axios.get('/get/group?password=' + LocalStorage.getItem('password'))
         .then((response) => {
           this.groupList = response.data
         })

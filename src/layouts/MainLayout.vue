@@ -50,15 +50,15 @@ import EssentialLink from 'components/EssentialLink.vue'
 const linksData = [
   {
     title: '首页',
-    link: '/#/'
+    link: '/'
   },
   {
     title: '授权码',
-    link: '/#/regkey'
+    link: '/regkey'
   },
   {
     title: 'QQ群',
-    link: '/#/group'
+    link: '/group'
   }
 ]
 

@@ -11,7 +11,6 @@ module.exports = function (/* ctx */) {
   return {
     // https://quasar.dev/quasar-cli/supporting-ts
     supportTS: false,
-
     // https://quasar.dev/quasar-cli/prefetch-feature
     // preFetch: true,
 
@@ -47,7 +46,6 @@ module.exports = function (/* ctx */) {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
 
       // transpile: false,
-
       // Add dependencies for transpiling with Babel (Array of string/regex)
       // (from node_modules, which are by default not transpiled).
       // Applies only if "transpile" is set to true.
@@ -72,7 +70,6 @@ module.exports = function (/* ctx */) {
         })
       }
     },
-
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       https: false,

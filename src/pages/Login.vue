@@ -35,6 +35,7 @@ export default {
           console.log(response)
           if (response.data === 'success') {
             this.$q.localStorage.set('login', true)
+            this.$q.localStorage.set('password', this.password)
             this.$router.replace('/')
           }
         })

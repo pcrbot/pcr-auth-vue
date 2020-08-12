@@ -4,7 +4,7 @@ import { Notify } from 'quasar'
 
 axios.interceptors.request.use(
   config => {
-    config.baseURL = 'auth/api/'
+    config.baseURL = 'api/'
     if (!config.headers['Content-Type']) {
       config.headers['Content-Type'] = 'application/json'
     }
