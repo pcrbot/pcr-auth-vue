@@ -57,11 +57,11 @@ const linksData = [
     link: '/activate'
   },
   {
-    title: '授权码',
+    title: '卡密管理',
     link: '/regkey'
   },
   {
-    title: 'QQ群',
+    title: '群组管理',
     link: '/group'
   }
 ]

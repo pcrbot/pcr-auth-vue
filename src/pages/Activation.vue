@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex flex-center">
-    <q-dialog v-model="alert" persistent>
+    <q-dialog v-model="alert" v-on:hide="onHide">
       <q-card class="flex flex-center">
 
         <div class="q-pa-md" style="width: 480px">
@@ -27,7 +27,7 @@
         ]"
             />
 
-            <div>
+            <div align="center">
               <q-btn label="Submit" v-on:click="onSubmit" color="primary"/>
               <q-btn label="Reset" v-on:click="onReset" color="primary" flat class="q-ml-sm" />
             </div>
@@ -96,6 +96,9 @@ export default {
     onReset () {
       this.gid = 0
       this.key = ''
+    },
+    onHide () {
+      this.$router.replace('/')
     }
   }
 }

@@ -1,59 +1,125 @@
 <template>
-  <div class="q-ma-xl">
-    <span style="font-size: 28px">注册码列表</span>
-    <q-btn label="添加" color="primary" v-on:click="add()"></q-btn>
+  <q-page class="doc-page">
     <div class="q-pa-md">
-      <div class="row justify-center q-gutter-sm" style="width: auto">
-        <q-intersection
-          v-for="(item,index) in keyList"
-          :key="index"
-          once
-          transition="scale"
-          class="example-item"
-        >
-          <q-card class="bg-primary text-white" style="width: 180px">
-            <br>
-            <div class="text-bold text-center">
-              {{ item.key }}
-              <br>
-              授权时长:{{ item.length }}天
-            </div>
-            <br>
-            <q-card-section class="justify-center bg-teal-14" style="vertical-align: middle;">
-              <q-btn label="Info" v-on:click="alert(index)"></q-btn>
-              <q-btn label="Delete" v-on:click="confirm(index)"></q-btn>
-            </q-card-section>
-          </q-card>
-        </q-intersection>
-      </div>
+      <q-table
+        title="Treats"
+        :data="data"
+        :columns="columns"
+        row-key="key"
+        selection="multiple"
+        :selected.sync="selected"
+      >
+        <template v-slot:top>
+          <div class="q-table__title row">
+            充值卡密管理
+          </div>
+          <q-space/>
+          <div class="row">
+            <q-btn class="q-mr-xs" color="positive" v-on:click="output">导出</q-btn>
+            <q-btn class="q-mr-xs" color="info" v-on:click="updateKey">刷新</q-btn>
+            <q-btn class="q-mr-xs" color="secondary" @click="isAdd = true">添加</q-btn>
+            <q-btn class="q-mr-xs" color="primary" @click="modifySelect()">修改</q-btn>
+            <q-btn class="q-mr-xs" color="negative" @click="deleteSelect">删除</q-btn>
+          </div>
+        </template>
+      </q-table>
     </div>
-  </div>
+    <q-dialog v-model="isAdd">
+      <q-card class="flex flex-center">
+        <div class="q-pa-md" style="width: 480px">
+          <q-form
+            class="q-gutter-md"
+          >
+            <q-input
+              filled
+              type="number"
+              v-model="duration"
+              label="时长"
+              lazy-rules
+              :rules= "[val => val !== null && val > 0, '' || '请正确的时长!']"
+            />
+            <q-input
+              filled
+              type="number"
+              v-model="num"
+              label="数量"
+              lazy-rules
+              :rules= "[val => val !== null && val >0, '' || '请正确的数量!']"
+            />
+
+            <div align="center">
+              <q-btn label="Submit" @click="onSubmit()" color="primary"/>
+            </div>
+          </q-form>
+        </div>
+      </q-card>
+    </q-dialog>
+  </q-page>
 </template>
 
 <script>
-
 import { LocalStorage } from 'quasar'
 
 export default {
-  name: 'Regkey',
   data () {
     return {
-      keyList: [{
-        key: '123',
-        length: 23
-      }]
+      selected: [],
+      columns: [
+        {
+          name: 'key',
+          required: true,
+          label: '充值卡密',
+          align: 'left',
+          field: row => row.key,
+          format: val => `${val}`,
+          sortable: true
+        },
+        { name: 'duration', align: 'right', label: '时长', field: 'duration', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+      ],
+      data: [
+        {
+          key: 'error',
+          duration: 114
+        },
+        {
+          key: '请清理浏览器缓存',
+          duration: 514
+        }
+      ],
+      isAdd: false,
+      num: 1,
+      duration: 30
     }
   },
   methods: {
     updateKey () {
       this.$axios.get('/get/key?password=' + LocalStorage.getItem('password'))
         .then((response) => {
-          this.keyList = response.data
+          this.data = response.data
         })
     },
-    add () {
+    deleteSelect () {
       this.$q.dialog({
-        title: '添加',
+        title: 'Confirm',
+        message: '此操作将永久删除, 是否继续?',
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        // console.log('>>>> OK')
+      }).onOk(() => {
+        this.selected.forEach((item) => {
+          this.deleteItem(item)
+        })
+        this.updateKey()
+        this.message('成功', '删除完毕!')
+      })
+    },
+    deleteItem (item) {
+      this.$axios.delete('del/key?key=' + item.key)
+    },
+    modifySelect () {
+      this.$q.dialog({
+        title: '修改',
         message: '请填写注册码的授权时长',
         prompt: {
           model: '',
@@ -63,49 +129,42 @@ export default {
         cancel: true,
         persistent: true
       }).onOk(data => {
-        this.$axios.post('addkey?length=' + data)
-          .then((response) => {
-            if (response) {
-              this.updateKey()
-            }
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        this.selected.forEach((item) => {
+          this.modifyItem(item, data)
+        })
+        this.updateKey()
+        this.message('成功', '修改完毕!')
       })
     },
-    alert (index) {
+    modifyItem (item, duration) {
+      this.$axios.post('update/key?key=' + item.key + '&duration=' + duration)
+    },
+    message (title, text) {
       this.$q.dialog({
-        title: 'INFO',
-        message: '您的注册码:' + this.keyList[index].key + '  授权时长:' + this.keyList[index].length + '天'
-      }).onOk(() => {
-        // console.log('OK')
-      }).onCancel(() => {
-        // console.log('Cancel')
-      }).onDismiss(() => {
-        // console.log('I am triggered on both OK and Cancel')
+        title: title,
+        message: text,
+        html: true
       })
     },
-    confirm (index) {
-      this.$q.dialog({
-        title: 'Confirm',
-        message: '此操作将永久删除该注册码, 是否继续?',
-        cancel: true,
-        persistent: true
-      }).onOk(() => {
-        // console.log('>>>> OK')
-      }).onOk(() => {
-        this.$axios.delete('delkey?key=' + this.keyList[index].key)
-          .then((response) => {
-            if (response.data === 'success') {
-              this.updateKey()
-            }
-          })
-      }).onCancel(() => {
-        // console.log('>>>> Cancel')
-      }).onDismiss(() => {
-        // console.log('I am triggered on both OK and Cancel')
+    output () {
+      let msg = ''
+      this.selected.forEach((item) => {
+        msg = msg + '卡密:' + item.key + '<br>时长:' + item.duration + '天<br>'
       })
+      this.message('导出卡密', msg)
+    },
+    onSubmit () {
+      this.$axios.post('add/key?duration=' + this.duration + '&num=' + this.num)
+        .then((response) => {
+          if (response) {
+            this.message('成功', '添加完成!')
+            this.isAdd = false
+            this.updateKey()
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     }
   },
   created () {
@@ -113,3 +172,13 @@ export default {
   }
 }
 </script>
+
+<style>
+.doc-page {
+  padding: 16px 46px;
+  font-weight: 300;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
