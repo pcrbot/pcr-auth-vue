@@ -8,6 +8,7 @@
         row-key="key"
         selection="multiple"
         :selected.sync="selected"
+        :filter="filter"
       >
         <template v-slot:top>
           <div class="q-table__title row">
@@ -15,6 +16,11 @@
           </div>
           <q-space/>
           <div class="row">
+            <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
             <q-btn class="q-mr-xs" color="positive" v-on:click="output">导出</q-btn>
             <q-btn class="q-mr-xs" color="info" v-on:click="updateKey">刷新</q-btn>
             <q-btn class="q-mr-xs" color="secondary" @click="isAdd = true">添加</q-btn>
@@ -63,6 +69,7 @@ import { LocalStorage } from 'quasar'
 export default {
   data () {
     return {
+      filter: '',
       selected: [],
       columns: [
         {
@@ -77,14 +84,6 @@ export default {
         { name: 'duration', align: 'right', label: '时长', field: 'duration', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
       ],
       data: [
-        {
-          key: 'error',
-          duration: 114
-        },
-        {
-          key: '请清理浏览器缓存',
-          duration: 514
-        }
       ],
       isAdd: false,
       num: 1,
