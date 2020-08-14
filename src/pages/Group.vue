@@ -22,8 +22,10 @@
               </template>
             </q-input>
             <q-btn class="q-mr-xs" color="info" v-on:click="updateGroup">刷新</q-btn>
-            <q-btn class="q-mr-xs" color="primary" @click="modifySelect()">修改</q-btn>
-            <q-btn class="q-mr-xs" color="secondary" @click="isAdd = true">添加授权</q-btn>
+            <q-btn class="q-mr-xs" color="secondary" @click="modifySelect()">修改</q-btn>
+            <q-btn class="q-mr-xs" color="primary" @click="isAdd = true">添加授权</q-btn>
+            <q-btn class="q-mr-xs" color="accent" @click="broadcastSelect">提醒续费</q-btn>
+            <q-btn class="q-mr-xs" color="negative" @click="gunSelect">退群</q-btn>
           </div>
         </template>
       </q-table>
@@ -80,6 +82,14 @@ export default {
           sortable: true,
           sort: (a, b) => parseInt(a, 20) - parseInt(b, 20)
         },
+        {
+          name: 'groupName',
+          required: true,
+          label: '群名称',
+          align: 'left',
+          field: row => row.groupName,
+          format: val => `${val}`
+        },
         { name: 'deadline', align: 'right', label: '截至日期', field: 'deadline', sortable: true }
       ],
       data: [
@@ -94,6 +104,7 @@ export default {
       this.$axios.get('/get/group?password=' + LocalStorage.getItem('password'))
         .then((response) => {
           this.data = response.data
+          console.log(response.data)
         })
     },
     modifySelect () {
@@ -136,6 +147,80 @@ export default {
         })
         .catch((err) => {
           console.log(err)
+        })
+    },
+    broadcastSelect () {
+      this.$q.dialog({
+        title: '请填写推送语',
+        prompt: {
+          model: '您的机器人即将到期，请及时续费!',
+          type: 'text' // optional
+        },
+        cancel: true
+      }).onOk(data => {
+        this.selected.forEach((item) => {
+          this.broadcastItem(item, data)
+        })
+      })
+    },
+    broadcastItem (item, msg) {
+      this.$axios.post('/notify/group?gid=' + item.gid + '&msg=' + msg)
+        .then((response) => {
+          if (response.data === 'failed') {
+            this.$q.notify({
+              message: '群' + item.gid + '推送失败!',
+              position: 'top',
+              color: 'purple'
+            })
+          } else {
+            this.$q.notify({
+              message: '群' + item.gid + '推送成功!',
+              position: 'top',
+              color: 'green'
+            })
+          }
+        }).catch(() => {
+          this.$q.notify({
+            message: '群' + item.gid + '推送失败!',
+            position: 'top',
+            color: 'purple'
+          })
+        })
+    },
+    gunSelect () {
+      this.$q.dialog({
+        title: '确认',
+        message: '确定退出群聊吗?',
+        cancel: true
+      }).onOk(data => {
+        this.selected.forEach((item) => {
+          this.gunItem(item)
+        })
+        this.updateGroup()
+      })
+    },
+    gunItem (item) {
+      this.$axios.post('/gun/group?gid=' + item.gid)
+        .then((response) => {
+          if (response.data === 'failed') {
+            this.$q.notify({
+              message: '群' + item.gid + '退出失败!',
+              position: 'top',
+              color: 'purple'
+            })
+          } else {
+            this.$q.notify({
+              message: '群' + item.gid + '退出成功!',
+              position: 'top',
+              color: 'green'
+            })
+          }
+        }).catch(() => {
+          this.$q.notify({
+            message: '群' + item.gid + '推送失败!',
+            position: 'top',
+            color: 'purple'
+          })
         })
     }
   },
